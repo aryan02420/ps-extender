@@ -8,7 +8,9 @@
     "test": "playwright test",
     "build": "tsc && vite build",
     "build:watch": "tsc && vite build --watch",
-    "dev": "vite"
+    "build:test": "tsc && vite build --config vite.test.config.js && cp -r test/StudentStationPreference.aspx_files demo/test/StudentStationPreference.aspx_files",
+    "dev": "vite",
+    "preview": "vite preview --config vite.test.config.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.28.0",
