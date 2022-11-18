@@ -21,3 +21,20 @@ These changes have been made to `StudentStationPreference.aspx.html`
 
 </body></html>
 ```
+
+```diff
+                            <div id="Div1" class="list">
+                              
+-                                <ul id="sortable_nav" class="item-list divMargin h5 m-t-20 ui-sortable"><li class="col-sm-12 item-blue clearfix ui-state-default"><span cls="1" spn="7048" cname...
++                                <ul id="sortable_nav" class="item-list divMargin h5 m-t-20 ui-sortable">
++                                    <li class="col-sm-12 item-blue clearfix ui-state-default">
++                                        <span cls="1" spn="1001" cname="Manufacturing-Acme Corporation, Toontown" class="spanclass uiicon ui-icon-arrowthick-2-n-s">Manufacturing-Acme Corporation, Toontown</span>
++                                        &nbsp;&nbsp;&nbsp;&nbsp;
++                                        <div class="ui-state-default sortable-number">
++                                            <span id="spnRank" class="">1</span>
++                                        </div>
++                                        <input type="checkbox" chkaccomo="7048" class="accomo pull-right" name="accomoPreference" value="7048">
++                                    </li>
++                                </ul>
+                            </div>
+```
