@@ -1,6 +1,7 @@
 // @ts-nocheck
 
 import { psdFetch } from './fetch'
+import sleep from './sleep'
 
 export function $(selector) {
 	const elems = document.querySelectorAll(selector)
@@ -292,17 +293,22 @@ export async function viewProblemBank(node, { openInBackground = false } = {}) {
     referrer: "http://psd.bits-pilani.ac.in/Student/ViewActiveStationProblemBankData.aspx",
   })
   if (data.length === 0) throw new Error('No problem banks found')
-  const url_1 = `StationproblemBankDetails.aspx?CompanyId=${data[0].CompanyId}&StationId=${data[0].StationId}&BatchIdFor=${data[0].BatchIdFor}&PSTypeFor=${data[0].PSTypeFor}`
-  if (openInBackground)
-    return new Promise(resolve => {
-      const iframe = $('#__PSZY_BGFRAME__') as HTMLIFrameElement
-      iframe.src = url_1
-      iframe.contentWindow.onload = () => setTimeout(() => resolve(updateStationInfo(node)), 500)
-    })
-  return new Promise(resolve => {
-    const w = window.open(url_1, "_blank")
-    w.onload = () => setTimeout(() => resolve(updateStationInfo(node)), 500)
-  })
+  const url = `StationproblemBankDetails.aspx?CompanyId=${data[0].CompanyId}&StationId=${data[0].StationId}&BatchIdFor=${data[0].BatchIdFor}&PSTypeFor=${data[0].PSTypeFor}`
+  if (openInBackground) {
+    const iframe = $('#__PSZY_BGFRAME__') as HTMLIFrameElement
+    iframe.src = url
+    await sleep(20)
+    while (iframe.contentDocument?.readyState !== 'complete') {
+      await sleep(20)
+    }
+    return updateStationInfo(node)
+  }
+  const w = window.open(url, "_blank")
+  await sleep(20)
+  while (w?.document?.readyState !== 'complete') {
+    await sleep(20)
+  }
+  return updateStationInfo(node)
 }
 
 export async function updateStationInfo(node) {
