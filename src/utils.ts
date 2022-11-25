@@ -335,17 +335,18 @@ export async function updateStationInfo(node) {
   node.querySelector('#__PSZY_DISCIPLINE__ span').innerText = Array.from(new Set(tags.split(','))).filter(x => !!x).join(',') || 'Any'
 }
 
-export function fillAllStationInfo() {
+export async function fillAllStationInfo() {
   const allNodes = getAllItems()
-  allNodes.forEach((n, i) => {
-    setTimeout(() => {
-      viewProblemBank(n, { openInBackground: true }).then(() => {
-        $('#__PSZY_FETCHINFOPROGRESS__').value = (i + 1) / allNodes.length
-        $('#__PSZY_FETCHINFOPROGRESS__').title = `${i + 1}/${allNodes.length}: about ${Math.ceil((allNodes.length - i) * 2 / 60)} minutes remaining`
-        if (i === allNodes.length - 1) {
-          $('#__PSZY_FETCHINFOPROGRESS__').removeAttribute('value')
-        }
-      })
-    }, 2000*i)
-  })
+  for (const [index, node] of Object.entries(allNodes)) {
+    await viewProblemBank(node, { openInBackground: true })
+    const i = parseInt(index)
+    $('#__PSZY_FETCHINFOPROGRESS__').value = (i + 1) / allNodes.length
+    // assuming each item takes 2 sec to fetch
+    // calculate time (in minutes) of remaining nodes
+    const timeLeft = Math.ceil((allNodes.length - i) * 2 / 60)
+    $('#__PSZY_FETCHINFOPROGRESS__').title = `${i + 1}/${allNodes.length}: about ${timeLeft} minutes remaining`
+    if (i === allNodes.length - 1) {
+      $('#__PSZY_FETCHINFOPROGRESS__').removeAttribute('value')
+    }
+  }
 }
