@@ -328,7 +328,7 @@ export async function updateStationInfo(node) {
   })
   const [data1, data2] = await Promise.all([response1, response2])
   const totStudents = data1?.map(p => p.TotalReqdStudents).reduce((acc, val) => acc + val) ?? '-'
-  const tags = data1?.map(p_1 => p_1.Tags.replaceAll(' ', '').replaceAll('-', '').replaceAll('Any', '')).join(',')
+  const tags = data1?.map(p => p.Tags.replaceAll(' ', '').replaceAll('-', '').replaceAll('Any', '')).join(',')
   node.querySelector('#__PSZY_STIPEND__ span').innerText = data2[0]?.Stipend ?? '-'
   node.querySelector('#__PSZY_STUDENTS__ span').innerText = totStudents
   node.querySelector('#__PSZY_PROJECTS__ span').innerText = data1?.[0].TotalProject ?? '-'

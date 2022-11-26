@@ -1,4 +1,6 @@
-export async function psdFetch(url: string, options: RequestInit = {}) {
+import { PSData, PSError, PSResponses, PSUrl } from "./types"
+
+export async function psdFetch<U extends PSUrl>(url: U, options: RequestInit = {}) {
   const {headers, body, ...rest} = options
   const res = await fetch(url, {
     headers: {
@@ -18,6 +20,7 @@ export async function psdFetch(url: string, options: RequestInit = {}) {
     credentials: "include",
     ...rest
   })
-  const resJson = await res.json() as { d: string }
-  return JSON.parse(resJson.d) as unknown
+  if (!res.ok) throw new Error(JSON.stringify(await res.json() as PSError))
+  const resJson = await res.json() as PSData
+  return JSON.parse(resJson.d) as PSResponses<U>
 }
