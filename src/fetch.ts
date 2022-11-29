@@ -1,6 +1,8 @@
 import { PSData, PSError, PSResponses, PSUrl } from "./types"
 
-export async function psdFetch<U extends PSUrl>(url: U, options: RequestInit = {}) {
+type PSRequestInit = Omit<RequestInit, 'body'> & { body?: Parameters<typeof JSON.stringify>[0] }
+
+export async function psdFetch<U extends PSUrl>(url: U, options: PSRequestInit = {}) {
   const {headers, body, ...rest} = options
   const res = await fetch(url, {
     headers: {
@@ -20,7 +22,9 @@ export async function psdFetch<U extends PSUrl>(url: U, options: RequestInit = {
     credentials: "include",
     ...rest
   })
-  if (!res.ok) throw new Error(JSON.stringify(await res.json() as PSError))
-  const resJson = await res.json() as PSData
-  return JSON.parse(resJson.d) as PSResponses<U>
+  const resJson = await res.json() as PSData | PSError
+  if (!res.ok) {
+    throw new Error(`500 Internal Server Error: ${(resJson as PSError).ExceptionType}\n${(resJson as PSError).Message}`)
+  }
+  return JSON.parse((resJson as PSData).d) as PSResponses<U>
 }

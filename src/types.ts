@@ -1,18 +1,14 @@
-// FIXME: missing companyID
 interface getPBPOPUP {
-  ProjectId: number
-  Groupid: number
-  Tags: string
-  Tags2: string
-  Coursespecial2: number
-  Coursespecial1: number
-  DomainId1: number
-  DomainName1: string
-  DomainId2: number
-  DomainName2: string
   StationId: number
-  PSTypeFor: number
+  CompanyId: number
+  TotalProject: number
+  BatchName: string
   BatchIdFor: number
+  PSTypeFor: number
+  Tags: string
+  stipend: number
+  Scholarship: number
+  stipendforpg: number
 }
 
 interface ViewPB {
@@ -73,8 +69,11 @@ interface StationFacilitiesInfo {
   OtherInfo: string
 }
 
-// TODO: complete this type
-export interface PSError { }
+export interface PSError {
+  Message: string
+  StackTrace: string
+  ExceptionType: string
+}
 
 export interface PSData {
   d: string
