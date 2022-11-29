@@ -350,3 +350,17 @@ export async function fillAllStationInfo() {
     }
   }
 }
+
+export async function getPreferences() {
+  return psdFetch("http://psd.bits-pilani.ac.in/Student/NEWStudentDashboard.aspx/ViewStudentStationPer", {
+    body: { ID: "0" },
+    referrer: "http://psd.bits-pilani.ac.in/Student/NEWStudentDashboard.aspx",
+  })
+}
+
+export async function getStudentData() {
+  return psdFetch("http://psd.bits-pilani.ac.in/Student/StudentBiodataDetails.aspx/getdata", {
+    body: { ID: "0" },
+    referrer: "http://psd.bits-pilani.ac.in/Student/StudentBiodataDetails.aspx",
+  })
+}

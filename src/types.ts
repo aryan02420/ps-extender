@@ -69,6 +69,37 @@ interface StationFacilitiesInfo {
   OtherInfo: string
 }
 
+interface ViewStudentStationPer {
+  PreferenceNo: number
+  StudentId: number
+  Eligible: number
+  seats: number
+  Accommodation: string
+  Location: string
+  CompanyName: string
+  StationId: number
+  CompanyId: number
+}
+
+interface getdata {
+  StudentID: number
+  IdNumber: string
+  FirstName: string
+  LastName: string
+  BitsEmailId: string
+  CGPA: number
+  Address: string
+  Mobile: string
+  LandlineNo: string
+  PanCardDetails: string
+  DateofBirth: string
+  Course1: string
+  Course2: string
+  Specialization1: string
+  Specialization2: string
+  NameOfOrganizationPSI: string
+}
+
 export interface PSError {
   Message: string
   StackTrace: string
@@ -83,9 +114,13 @@ export type PSUrl =
   | 'http://psd.bits-pilani.ac.in/Student/ViewActiveStationProblemBankData.aspx/getPBPOPUP'
   | 'http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx/ViewPB'
   | 'http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx/StationFacilitiesInfo'
+  | 'http://psd.bits-pilani.ac.in/Student/NEWStudentDashboard.aspx/ViewStudentStationPer'
+  | 'http://psd.bits-pilani.ac.in/Student/StudentBiodataDetails.aspx/getdata'
 
 export type PSResponses<U extends PSUrl> =
   U extends 'http://psd.bits-pilani.ac.in/Student/ViewActiveStationProblemBankData.aspx/getPBPOPUP' ? getPBPOPUP[] :
   U extends 'http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx/ViewPB' ? ViewPB[] :
   U extends 'http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx/StationFacilitiesInfo' ? [] | [StationFacilitiesInfo] :
+  U extends 'http://psd.bits-pilani.ac.in/Student/NEWStudentDashboard.aspx/ViewStudentStationPer' ? ViewStudentStationPer[] :
+  U extends 'http://psd.bits-pilani.ac.in/Student/StudentBiodataDetails.aspx/getdata' ? [getdata] :
   never
