@@ -1,3 +1,18 @@
+interface getPBdetail {
+  StationId: number
+  Tags: string
+  stipend: number
+  AccomodationDesc: string
+  stipendforpg: number
+  Scholarship: number
+  CompanyId: number
+  TotalProject: number
+  City: string
+  CompanyName: string
+  ProjectIndustryDomain: number
+  IndustryDomain: string
+}
+
 interface getPBPOPUP {
   StationId: number
   CompanyId: number
@@ -41,6 +56,18 @@ interface ViewPB {
   TotalProject: number
 }
 
+interface ViewProbBankDisciplaine {
+  Groupid: number,
+  Tags: null | string,
+  Tags2: null | string,
+  Coursespecial2: number,
+  Coursespecial1: number,
+  DomainId1: null | number,
+  DomainName1: null | string,
+  DomainId2: null | number,
+  DomainName2: null | string,
+}
+
 interface StationFacilitiesInfo {
   StationFacilitiesId: number
   Stipend: number
@@ -67,6 +94,34 @@ interface StationFacilitiesInfo {
   Weekdays: string
   StationAddress: string
   OtherInfo: string
+}
+
+interface StationName {
+  stationlocation: string
+  web: string
+  StationAddress: string
+  CompanyAddress: string
+}
+
+interface selectgroupstudent {
+  ProjectId: number
+  Groupid: number
+}
+
+interface selectgroup {
+  ProjectId: number,
+  Groupid: number,
+  Tags: string,
+  Tags2: string,
+  Coursespecial2: number,
+  Coursespecial1: number,
+  DomainId1: number,
+  DomainName1: string,
+  DomainId2: number,
+  DomainName2: string,
+  StationId: number,
+  PSTypeFor: number,
+  BatchIdFor: number,
 }
 
 interface ViewStudentStationPer {
@@ -111,16 +166,26 @@ export interface PSData {
 }
 
 export type PSUrl =
+  | 'http://psd.bits-pilani.ac.in/Student/ViewActiveStationProblemBankData.aspx/getPBdetail'
   | 'http://psd.bits-pilani.ac.in/Student/ViewActiveStationProblemBankData.aspx/getPBPOPUP'
   | 'http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx/ViewPB'
+  | 'http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx/ViewProbBankDisciplaine'
   | 'http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx/StationFacilitiesInfo'
+  | 'http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx/StationName'
+  | 'http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx/selectgroupstudent'
+  | 'http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx/selectgroup'
   | 'http://psd.bits-pilani.ac.in/Student/NEWStudentDashboard.aspx/ViewStudentStationPer'
   | 'http://psd.bits-pilani.ac.in/Student/StudentBiodataDetails.aspx/getdata'
 
 export type PSResponses<U extends PSUrl> =
+  U extends 'http://psd.bits-pilani.ac.in/Student/ViewActiveStationProblemBankData.aspx/getPBdetail' ? getPBdetail[] :
   U extends 'http://psd.bits-pilani.ac.in/Student/ViewActiveStationProblemBankData.aspx/getPBPOPUP' ? getPBPOPUP[] :
   U extends 'http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx/ViewPB' ? ViewPB[] :
+  U extends 'http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx/ViewProbBankDisciplaine' ? ViewProbBankDisciplaine[] :
   U extends 'http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx/StationFacilitiesInfo' ? [] | [StationFacilitiesInfo] :
+  U extends 'http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx/StationName' ? [] | [StationName] :
+  U extends 'http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx/selectgroupstudent' ? selectgroupstudent[] :
+  U extends 'http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx/selectgroup' ? selectgroup[] :
   U extends 'http://psd.bits-pilani.ac.in/Student/NEWStudentDashboard.aspx/ViewStudentStationPer' ? ViewStudentStationPer[] :
   U extends 'http://psd.bits-pilani.ac.in/Student/StudentBiodataDetails.aspx/getdata' ? [getdata] :
   never

@@ -223,7 +223,7 @@ export function exportCsv() {
     const notes = encodeURIComponent(n.querySelector('#__PSZY_NOTE__').innerText)
     data.push([id, name, accomo, stipend, students, projects, discipline, notes])
   })
-  const blob = new Blob([data.map(row => row.join(',')).join('\n')], { type: 'text/html', endings: 'native' })
+  const blob = new Blob([data.map(row => row.join(',')).join('\n')], { type: 'text/csv', endings: 'native' })
   const url = URL.createObjectURL(blob)
   const anchor = document.createElement('a')
   anchor.href = url
@@ -364,3 +364,43 @@ export async function getStudentData() {
     referrer: "http://psd.bits-pilani.ac.in/Student/StudentBiodataDetails.aspx",
   })
 }
+
+javascript:void((async () => {
+  /** @type {ReturnType<typeof getStudentData> extends PromiseLike<infer U> ? U : T} */
+  const d = JSON.parse((await (await fetch("http://psd.bits-pilani.ac.in/Student/StudentBiodataDetails.aspx/getdata", {
+    "headers": {
+      "accept": "application/json, text/javascript, */*; q=0.01",
+      "accept-language": "en-US,en;q=0.6",
+      "content-type": "application/json; charset=UTF-8",
+      "sec-gpc": "1",
+      "x-requested-with": "XMLHttpRequest"
+    },
+    "referrer": "http://psd.bits-pilani.ac.in/Student/StudentBiodataDetails.aspx",
+    "referrerPolicy": "strict-origin-when-cross-origin",
+    "body": "{ID: \"0\" }",
+    "method": "POST",
+    "mode": "cors",
+    "credentials": "include"
+  })).json()).d)
+  /** @type {ReturnType<typeof getPreferences> extends PromiseLike<infer U> ? U : T} */
+  const p = JSON.parse((await (await fetch("http://psd.bits-pilani.ac.in/Student/NEWStudentDashboard.aspx/ViewStudentStationPer", {
+    "headers": {
+      "accept": "application/json, text/javascript, */*; q=0.01",
+      "accept-language": "en-US,en;q=0.6",
+      "content-type": "application/json; charset=UTF-8",
+      "sec-gpc": "1",
+      "x-requested-with": "XMLHttpRequest"
+    },
+    "referrer": "http://psd.bits-pilani.ac.in/Student/StudentBiodataDetails.aspx",
+    "referrerPolicy": "strict-origin-when-cross-origin",
+    "body": "{ID: \"0\"}",
+    "method": "POST",
+    "mode": "cors",
+    "credentials": "include"
+  })).json()).d)
+  const a = p.filter(s => document.getElementById('allotedsta').innerText.startsWith(s.CompanyName))[0].StationId
+  const b = new Uint16Array([d[0].StudentID, d[0].IdNumber.slice(-1).charCodeAt(0), Math.floor(d[0].CGPA*1000), a, ...(p.map(s => s.StationId))])
+  const u = URL.createObjectURL(new Blob([b.buffer], { type: 'application/octet-stream' }))
+  window.open(u)
+  URL.revokeObjectURL(u)
+})())
