@@ -179,7 +179,7 @@ export type PSUrl =
 
 export type PSResponses<U extends PSUrl> =
   U extends 'http://psd.bits-pilani.ac.in/Student/ViewActiveStationProblemBankData.aspx/getPBdetail' ? getPBdetail[] :
-  U extends 'http://psd.bits-pilani.ac.in/Student/ViewActiveStationProblemBankData.aspx/getPBPOPUP' ? getPBPOPUP[] :
+  U extends 'http://psd.bits-pilani.ac.in/Student/ViewActiveStationProblemBankData.aspx/getPBPOPUP' ? [getPBPOPUP, ...getPBPOPUP[]] :
   U extends 'http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx/ViewPB' ? ViewPB[] :
   U extends 'http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx/ViewProbBankDisciplaine' ? ViewProbBankDisciplaine[] :
   U extends 'http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx/StationFacilitiesInfo' ? [] | [StationFacilitiesInfo] :

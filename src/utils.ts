@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import { psdFetch } from './fetch'
+import { psdFetch, PSDNoData } from './fetch'
 import sleep from './sleep'
 
 export function $(selector) {
@@ -284,6 +284,28 @@ export function importCsv() {
       alert(`imported ${data.length} rows, ${stats.restored} stations restored from backup, ${stats.added} added and ${stats.deleted} deleted since last visit`)
     })
   })
+}
+
+export function displayError(errMsg: string) {
+  // TODO: 
+}
+
+export async function getActiveStationDetails(stationId: number) {
+  try {
+    const data = await psdFetch("http://psd.bits-pilani.ac.in/Student/ViewActiveStationProblemBankData.aspx/getPBPOPUP", {
+      body: { StationId: stid },
+      referrer: "http://psd.bits-pilani.ac.in/Student/ViewActiveStationProblemBankData.aspx",
+    })
+    // index 0 for latest semester
+    return data[0] // TODO: remove undefined from type getPBPOPUP | undefined. return array of length 1
+
+  } catch (err) {
+    if (err instanceof PSDNoData) {
+      displayError(`No problem banks found for station with id ${stationId}`)
+    } else {
+      throw err
+    }
+  }
 }
 
 export async function viewProblemBank(node, { openInBackground = false } = {}) {

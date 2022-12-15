@@ -2,6 +2,20 @@ import { PSData, PSError, PSResponses, PSUrl } from "./types"
 
 type PSRequestInit = Omit<RequestInit, 'body'> & { body?: Parameters<typeof JSON.stringify>[0] }
 
+export class PSDInternalServerError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = "InternalServerError"
+  }
+}
+
+export class PSDNoData extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = "NoData"
+  }
+}
+
 export async function psdFetch<U extends PSUrl>(url: U, options: PSRequestInit = {}) {
   const {headers, body, ...rest} = options
   const res = await fetch(url, {
@@ -24,7 +38,9 @@ export async function psdFetch<U extends PSUrl>(url: U, options: PSRequestInit =
   })
   const resJson = await res.json() as PSData | PSError
   if (!res.ok) {
-    throw new Error(`500 Internal Server Error: ${(resJson as PSError).ExceptionType}\n${(resJson as PSError).Message}`)
+    throw new PSDInternalServerError(`${(resJson as PSError).ExceptionType}\n${(resJson as PSError).Message}`)
   }
-  return JSON.parse((resJson as PSData).d) as PSResponses<U>
+  const data = JSON.parse((resJson as PSData).d) as any[]
+  if (data.length === 0) throw new PSDNoData(`Could not find any data for ${url}`)
+  return data as PSResponses<U>
 }
