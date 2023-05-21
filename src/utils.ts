@@ -1,5 +1,8 @@
 // @ts-nocheck
 
+import { psdFetch } from './fetch'
+import sleep from './sleep'
+
 export function $(selector) {
 	const elems = document.querySelectorAll(selector)
 	return elems.length === 1 ? elems[0] : [...elems]
@@ -283,124 +286,67 @@ export function importCsv() {
   })
 }
 
-export function viewProblemBank(node, { openInBackground = false } = {}) {
+export async function viewProblemBank(node, { openInBackground = false } = {}) {
   let stid = node.querySelector('.spanclass.uiicon').attributes.spn.value
-  let fetchBody = { StationId: stid }
-  return fetch("http://psd.bits-pilani.ac.in/Student/ViewActiveStationProblemBankData.aspx/getPBPOPUP", {
-    headers: {
-      "content-type": "application/json; charset=UTF-8",
-    },
+  const data = await psdFetch("http://psd.bits-pilani.ac.in/Student/ViewActiveStationProblemBankData.aspx/getPBPOPUP", {
+    body: { StationId: stid },
     referrer: "http://psd.bits-pilani.ac.in/Student/ViewActiveStationProblemBankData.aspx",
-    referrerPolicy: "strict-origin-when-cross-origin",
-    body: JSON.stringify(fetchBody),
-    method: "POST",
-    mode: "cors",
-    credentials: "include"
   })
-  .then(response => response.json())
-  .then(data => {
-    const parsed = JSON.parse(data.d)
-    if (parsed.length > 0) {
-      const url = `StationproblemBankDetails.aspx?CompanyId=${parsed[0].CompanyId}&StationId=${parsed[0].StationId}&BatchIdFor=${parsed[0].BatchIdFor}&PSTypeFor=${parsed[0].PSTypeFor}`
-      if (openInBackground) {
-        const iframe = $('#__PSZY_BGFRAME__') as HTMLIFrameElement
-        iframe.src = url
-        iframe.contentWindow.onload = setTimeout(() => { updateStationInfo(node).catch(e => console.error(e)) }, 500)
-      } else {
-        const w = window.open(url, "_blank")
-        w.onload = () => setTimeout(() => { updateStationInfo(node).catch(e => console.error(e)) }, 500)
-      }
-    } else {
-      throw new Error('No problem banks found')
+  if (data.length === 0) throw new Error('No problem banks found')
+  const url = `StationproblemBankDetails.aspx?CompanyId=${data[0].CompanyId}&StationId=${data[0].StationId}&BatchIdFor=${data[0].BatchIdFor}&PSTypeFor=${data[0].PSTypeFor}`
+  if (openInBackground) {
+    const iframe = $('#__PSZY_BGFRAME__') as HTMLIFrameElement
+    iframe.src = url
+    await sleep(20)
+    while (iframe.contentDocument?.readyState !== 'complete') {
+      await sleep(20)
     }
-  })
+    return updateStationInfo(node)
+  }
+  const w = window.open(url, "_blank")
+  await sleep(20)
+  while (w?.document?.readyState !== 'complete') {
+    await sleep(20)
+  }
+  return updateStationInfo(node)
 }
 
-export function updateStationInfo(node) {
+export async function updateStationInfo(node) {
   const stid = node.querySelector('.spanclass.uiicon').attributes.spn.value
-  const fetchBody = { StationId: stid }
-  return fetch("http://psd.bits-pilani.ac.in/Student/ViewActiveStationProblemBankData.aspx/getPBPOPUP", {
-    headers: {
-      "accept": "application/json, text/javascript, */*; q=0.01",
-      "accept-language": "en-US,en;q=0.9",
-      "content-type": "application/json; charset=UTF-8",
-      "sec-gpc": "1",
-      "x-requested-with": "XMLHttpRequest",
-      "cache-control": "no-cache",
-      "pragma": "no-cache",
-    },
+  const data = await psdFetch("http://psd.bits-pilani.ac.in/Student/ViewActiveStationProblemBankData.aspx/getPBPOPUP", {
+    body: { StationId: stid },
     referrer: "http://psd.bits-pilani.ac.in/Student/ViewActiveStationProblemBankData.aspx",
-    referrerPolicy: "strict-origin-when-cross-origin",
-    body: JSON.stringify(fetchBody),
-    method: "POST",
-    mode: "cors",
-    credentials: "include"
   })
-    .then(response => response.json())
-    .then(data => {
-      const parsed = JSON.parse(data.d)
-      if (parsed.length === 0) throw new Error("No problem banks found for this station")
-      const current = parsed[0]
-      const response1 = fetch("http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx/ViewPB", {
-        headers: {
-          "accept": "application/json, text/javascript, */*; q=0.01",
-          "accept-language": "en-US,en;q=0.9",
-          "content-type": "application/json; charset=UTF-8",
-          "sec-gpc": "1",
-          "x-requested-with": "XMLHttpRequest",
-          "cache-control": "no-cache",
-          "pragma": "no-cache",
-        },
-        referrer: `http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx?CompanyId=${current.CompanyId}&StationId=${current.StationId}&BatchIdFor=${current.BatchIdFor}&PSTypeFor=${current.PSTypeFor}`,
-        referrerPolicy: "strict-origin-when-cross-origin",
-        body: "{\"batchid\": \"undefined\" }",
-        method: "POST",
-        mode: "cors",
-        credentials: "include"
-      })
-      const response2 = fetch("http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx/StationFacilitiesInfo", {
-        headers: {
-          "accept": "application/json, text/javascript, */*; q=0.01",
-          "accept-language": "en-US,en;q=0.9",
-          "content-type": "application/json; charset=UTF-8",
-          "sec-gpc": "1",
-          "x-requested-with": "XMLHttpRequest",
-          "cache-control": "no-cache",
-          "pragma": "no-cache",
-        },
-        referrer: `http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx?CompanyId=${current.CompanyId}&StationId=${current.StationId}&BatchIdFor=${current.BatchIdFor}&PSTypeFor=${current.PSTypeFor}`,
-        referrerPolicy: "strict-origin-when-cross-origin",
-        body: "{\"StationId\": \"0\"}",
-        method: "POST",
-        mode: "cors",
-        credentials: "include"
-      })
-      return Promise.all([response1, response2])
-    })
-    .then(([response1, response2]) => Promise.all([response1.json(), response2.json()]))
-    .then(([data1, data2]) => {
-      const parsed1 = JSON.parse(data1.d)
-      const parsed2 = JSON.parse(data2.d)[0]
-      const totStudents = parsed1?.map(p => p.TotalReqdStudents).reduce((acc, val) => acc + val) ?? '-'
-      const tags = parsed1?.map(p => p.Tags.replaceAll(' ', '').replaceAll('-', '').replaceAll('Any', '')).join(',')
-      node.querySelector('#__PSZY_STIPEND__ span').innerText = parsed2?.Stipend ?? '-'
-      node.querySelector('#__PSZY_STUDENTS__ span').innerText = totStudents
-      node.querySelector('#__PSZY_PROJECTS__ span').innerText = parsed1?.[0].TotalProject ?? '-'
-      node.querySelector('#__PSZY_DISCIPLINE__ span').innerText = Array.from(new Set(tags.split(','))).filter(x => !!x).join(',') || 'Any'
-    })
+  if (data.length === 0) throw new Error("No problem banks found for this station")
+  const response1 = psdFetch("http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx/ViewPB", {
+    referrer: `http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx?CompanyId=${data[0].CompanyId}&StationId=${data[0].StationId}&BatchIdFor=${data[0].BatchIdFor}&PSTypeFor=${data[0].PSTypeFor}`,
+    body: { batchid: "undefined" },
+  })
+  const response2 = psdFetch("http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx/StationFacilitiesInfo", {
+    referrer: `http://psd.bits-pilani.ac.in/Student/StationproblemBankDetails.aspx?CompanyId=${data[0].CompanyId}&StationId=${data[0].StationId}&BatchIdFor=${data[0].BatchIdFor}&PSTypeFor=${data[0].PSTypeFor}`,
+    body: { StationId: "0" },
+  })
+  const [data1, data2] = await Promise.all([response1, response2])
+  const totStudents = data1?.map(p => p.TotalReqdStudents).reduce((acc, val) => acc + val) ?? '-'
+  const tags = data1?.map(p => p.Tags.replaceAll(' ', '').replaceAll('-', '').replaceAll('Any', '')).join(',')
+  node.querySelector('#__PSZY_STIPEND__ span').innerText = data2[0]?.Stipend ?? '-'
+  node.querySelector('#__PSZY_STUDENTS__ span').innerText = totStudents
+  node.querySelector('#__PSZY_PROJECTS__ span').innerText = data1?.[0].TotalProject ?? '-'
+  node.querySelector('#__PSZY_DISCIPLINE__ span').innerText = Array.from(new Set(tags.split(','))).filter(x => !!x).join(',') || 'Any'
 }
 
-export function fillAllStationInfo() {
+export async function fillAllStationInfo() {
   const allNodes = getAllItems()
-  allNodes.forEach((n, i) => {
-    setTimeout(() => {
-      viewProblemBank(n, { openInBackground: true }).then(() => {
-        $('#__PSZY_FETCHINFOPROGRESS__').value = (i + 1) / allNodes.length
-        $('#__PSZY_FETCHINFOPROGRESS__').title = `${i + 1}/${allNodes.length}: about ${Math.ceil((allNodes.length - i) * 2 / 60)} minutes remaining`
-        if (i === allNodes.length - 1) {
-          $('#__PSZY_FETCHINFOPROGRESS__').removeAttribute('value')
-        }
-      })
-    }, 2000*i)
-  })
+  for (const [index, node] of Object.entries(allNodes)) {
+    await viewProblemBank(node, { openInBackground: true })
+    const i = parseInt(index)
+    $('#__PSZY_FETCHINFOPROGRESS__').value = (i + 1) / allNodes.length
+    // assuming each item takes 2 sec to fetch
+    // calculate time (in minutes) of remaining nodes
+    const timeLeft = Math.ceil((allNodes.length - i) * 2 / 60)
+    $('#__PSZY_FETCHINFOPROGRESS__').title = `${i + 1}/${allNodes.length}: about ${timeLeft} minutes remaining`
+    if (i === allNodes.length - 1) {
+      $('#__PSZY_FETCHINFOPROGRESS__').removeAttribute('value')
+    }
+  }
 }
